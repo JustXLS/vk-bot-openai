@@ -5,7 +5,7 @@ from translator import generate_russian
 
 
 prefix = config["prefix"]
-name = config["name"]
+name = config["name"].lower()
 start = config["prompt"]
 array = []
 bot = Bot(config["secrets"]["vk"])
