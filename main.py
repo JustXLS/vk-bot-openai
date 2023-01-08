@@ -13,7 +13,7 @@ bot = Bot(config["secrets"]["vk"])
 
 async def get_username(id: int) -> str:
     if id < 0:
-        group = (await bot.api.groups.get_by_id(group_id=id))[0]
+        group = (await bot.api.groups.get_by_id(group_id=-id))[0]
         return group.name
     else:
         user = (await bot.api.users.get(id))[0]
