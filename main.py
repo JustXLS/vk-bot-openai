@@ -5,7 +5,7 @@ from translator import generate_russian
 
 
 prefix = config["prefix"]
-name = config["name"].lower()
+name = config["name"]
 start = config["prompt"]
 array = []
 bot = Bot(config["secrets"]["vk"])
@@ -42,7 +42,7 @@ async def history_clear(_) -> str:
 
 def generate_match(s: Message):
     s_low = s.text.lower()
-    return s_low.startswith(prefix) or name in s_low
+    return s_low.startswith(prefix) or name.lower() in s_low
 
 
 @bot.on.message(func=generate_match)
