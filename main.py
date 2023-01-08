@@ -50,8 +50,9 @@ async def generate(*_) -> str:
     global array
     history = "\n".join(array)
     prompt = f"{start}\n{history}\n{name}: "
-    while len(prompt) > config["limits"]["max_context"]:
+    while len(prompt) > config["limits"]["max_context"] and len(array) > 0:
         array.pop(0)
+        history = "\n".join(array)
         prompt = f"{start}\n{history}\n{name}: "
     output = generate_russian(prompt)
     if output.endswith("\n"):
