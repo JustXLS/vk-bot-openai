@@ -29,7 +29,7 @@ async def save_history(msg: Message) -> str:
         text = msg.text
     if len(msg.text) > 0:
         from_name = await get_username(msg.from_id)
-        array += [f"{from_name}: {msg.text}"]
+        array += [f"{from_name}: {text}"]
     print("DEBUG!!!!!!:", array)
 
 
