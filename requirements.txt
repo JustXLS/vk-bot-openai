@@ -1,0 +1,6 @@
+openai~=0.26.0
+python-translator
+vkbottle~=4.3.12
+tomli
+bs4
+loguru
