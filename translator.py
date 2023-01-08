@@ -10,7 +10,6 @@ def translate(text, src, dest):
     return str(translation)
 
 
-
 def generate_russian(text: str) -> str:
     eng_prompt = translate(text, "ru", "en")
     eng_gen = gpt.generate(eng_prompt)
