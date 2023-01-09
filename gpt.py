@@ -36,8 +36,7 @@ def generate(prompt):
         temperature=temperature,
         top_p=top_p,
         frequency_penalty=frequency_penalty,
-        presence_penalty=presence_penalty,
-        stop="\n"
+        presence_penalty=presence_penalty
     )
 
     return completions.choices[0].text
