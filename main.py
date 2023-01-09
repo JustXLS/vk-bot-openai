@@ -2,7 +2,7 @@ from urllib.request import urlopen
 
 import tomli
 from vkbottle.bot import Bot, Message
-from conf import config, persons, reload_from_url_persons
+from conf import config, persons
 from gpt_instance import GptInstance
 from random import randint
 
