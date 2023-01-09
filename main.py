@@ -78,4 +78,10 @@ async def toggle_active_person(msg: Message, id: str):
         return f"{instance.id} ({instance.name}) включен"
 
 
+@bot.on.message(text=f"{global_prefix} stop")
+async def toggle_active_person(msg: Message):
+    await msg.answer("Остановка бота для последующей перезагрузки, надеюсь...")
+    exit(0)
+
+
 bot.run_forever()
