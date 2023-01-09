@@ -11,7 +11,8 @@ class GptInstance:
         self.history = []
 
     def is_triggered(self, text: str) -> bool:
-        return text.startswith(self.prefix) or self.name.lower() in text.lower()
+        i = text.lower().find(self.name.lower())
+        return text.startswith(self.prefix) or (i != -1 and (i == 0 or text[i-1] == " "))
 
     def construct_prompt(self) -> str:
         msgs = "\n".join(self.history)
