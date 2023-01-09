@@ -11,6 +11,15 @@ if "config_url" in config:
     f = urlopen(config["config_url"])
     config = tomli.load(f)
 
-if "persons_url" in config:
-    f = urlopen(config["persons_url"])
-    persons = tomli.load(f)
+persons = None
+
+
+def reload_from_url_persons():
+    global persons
+    if "persons_url" in config:
+        f = urlopen(config["persons_url"])
+        persons = tomli.load(f)
+
+
+reload_from_url_persons()
+
