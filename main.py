@@ -1,12 +1,10 @@
 import tomli
 from vkbottle.bot import Bot, Message
-from conf import config
+from conf import config, persons
 from gpt_instance import GptInstance
 
 
 global_prefix = config["global_prefix"]
-with open("persons.toml", "rb") as f:
-    persons = tomli.load(f)
 chats: dict[int, list[GptInstance]] = {}
 bot = Bot(config["secrets"]["vk"])
 
