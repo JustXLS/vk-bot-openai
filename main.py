@@ -55,6 +55,8 @@ async def list_persons(*_):
 
 @bot.on.message(text=f"{global_prefix} active<_>")
 async def list_active_persons(msg: Message, _):
+    if msg.chat_id not in chats:
+        return "Нет активных ботов в этом чате"
     reply = "Активные боты в этом чате:"
     for instance in chats[msg.chat_id]:
         reply += f"\n{instance.id} - {instance.name}"
