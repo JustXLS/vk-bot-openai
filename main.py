@@ -1,11 +1,12 @@
 from vkbottle.bot import Bot, Message
 from vkbottle import GroupEventType
 from conf import config
-from translator import generate_russian
+from translator import generate_lang
 
 
 prefix = config["prefix"]
 name = config["name"]
+lang = config["lang"]
 start = config["prompt"]
 array = []
 bot = Bot(config["secrets"]["vk"])
@@ -54,7 +55,7 @@ async def generate(*_) -> str:
         array.pop(0)
         history = "\n".join(array)
         prompt = f"{start}\n{history}\n{name}: "
-    output = generate_russian(prompt)
+    output = generate_lang(prompt)
     if output.endswith("\n"):
         output = output[:-1]
     array += [f"{name}: {output}"]
