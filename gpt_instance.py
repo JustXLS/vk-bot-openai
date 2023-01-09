@@ -21,5 +21,4 @@ class GptInstance:
         while len(prompt := self.construct_prompt()) > config["limits"]["max_context"] and len(self.history) > 0:
             self.history.pop(0)
         output = generate_russian(prompt).strip()
-        self.history += [f"{self.name}: {output}"]
         return output

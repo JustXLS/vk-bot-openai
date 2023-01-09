@@ -2,6 +2,7 @@ import tomli
 from vkbottle.bot import Bot, Message
 from conf import config, persons
 from gpt_instance import GptInstance
+from random import randint
 
 
 global_prefix = config["global_prefix"]
@@ -18,6 +19,20 @@ async def get_username(id: int) -> str:
         return user.first_name + f" {user.last_name[0]}."
 
 
+def add_to_all_history(chat_id: int, text: str):
+    for instance in chats.get(chat_id, []):
+        instance.history += [text]
+
+
+@bot.on.message(blocking=False)
+async def history_clear(msg: Message) -> str:
+    for instance in chats.get(msg.chat_id, []):
+        if msg.text == instance.prefix + "r":
+            msg.text = msg.text[len(instance.prefix):]
+            instance.history = []
+            await msg.reply(f"История сообщений очищена для {instance.prefix} ({instance.name})")
+
+
 @bot.on.message(blocking=False)
 async def save_history(msg: Message) -> str:
     username = await get_username(msg.from_id)
@@ -28,20 +43,20 @@ async def save_history(msg: Message) -> str:
         instance.history += [f"{username}: {text}"]
 
 
-@bot.on.message(blocking=False)
-async def history_clear(msg: Message) -> str:
-    for instance in chats.get(msg.chat_id, []):
-        if msg.text.startswith(instance.prefix + "r"):
-            instance.history = []
-            await msg.reply(f"История сообщений очищена для {instance.prefix} ({instance.name})")
+async def recursive_generation(chat_id: int, text: str, depth: int = 0):
+    if depth >= 4:
+        return
+    for instance in chats.get(chat_id, []):
+        if instance.is_triggered(text):
+            generation = instance.generate()
+            add_to_all_history(chat_id, f"{instance.name}: {generation}")
+            await bot.api.messages.send(chat_id=chat_id, message=f"{instance.name}: {generation}", random_id=randint(0, 100000))
+            await recursive_generation(chat_id, generation, depth + 1)
 
 
 @bot.on.message(blocking=False)
 async def generate(msg: Message) -> str:
-    for instance in chats.get(msg.chat_id, []):
-        if instance.is_triggered(msg.text):
-            generation = instance.generate()
-            await msg.reply(f"{generation}")
+    await recursive_generation(msg.chat_id, msg.text)
 
 
 @bot.on.message(text=f"{global_prefix} list<_>")
