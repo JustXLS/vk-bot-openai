@@ -14,3 +14,4 @@ if "config_url" in config:
 if "persons_url" in config:
     f = urlopen(config["persons_url"])
     persons = tomli.load(f)
+

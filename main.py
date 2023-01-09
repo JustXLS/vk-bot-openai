@@ -1,6 +1,8 @@
+from urllib.request import urlopen
+
 import tomli
 from vkbottle.bot import Bot, Message
-from conf import config, persons
+from conf import config, persons, reload_from_url_persons
 from gpt_instance import GptInstance
 from random import randint
 
@@ -95,10 +97,12 @@ async def toggle_active_person(msg: Message, id: str):
         return f"{instance.id} ({instance.name}) активирован"
 
 
-@bot.on.message(text=f"{global_prefix} stop")
+@bot.on.message(text=f"{global_prefix} reload")
 async def toggle_active_person(msg: Message):
-    await msg.answer("Остановка бота для последующей перезагрузки, надеюсь...")
-    exit(0)
+    global persons
+    f = urlopen(config["persons_url"])
+    persons = tomli.load(f)
+    return "Конфиг ботов перезагружен"
 
 
 bot.run_forever()
