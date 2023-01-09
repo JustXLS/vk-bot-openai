@@ -3,10 +3,11 @@ from translator import generate_russian
 
 
 class GptInstance:
-    def __init__(self, prefix, name, prompt):
-        self.prefix = prefix
-        self.name = name
-        self.prompt = prompt
+    def __init__(self, id: str, params: dict):
+        self.id = id
+        self.prefix = params["prefix"]
+        self.name = params["name"]
+        self.prompt = params["prompt"]
         self.history = []
 
     def is_triggered(self, text: str) -> bool:

@@ -1,13 +1,13 @@
+import tomli
 from vkbottle.bot import Bot, Message
-from vkbottle import GroupEventType
 from conf import config
-from translator import generate_russian
+from gpt_instance import GptInstance
 
 
-prefix = config["prefix"]
-name = config["name"]
-start = config["prompt"]
-array = []
+global_prefix = config["global_prefix"]
+with open("persons.toml", "rb") as f:
+    persons = tomli.load(f)
+chats: dict[int, list[GptInstance]] = {}
 bot = Bot(config["secrets"]["vk"])
 
 
@@ -22,43 +22,62 @@ async def get_username(id: int) -> str:
 
 @bot.on.message(blocking=False)
 async def save_history(msg: Message) -> str:
-    global array
-    if msg.text.startswith(prefix):
-        text = msg.text[len(prefix):].strip()
-    else:
+    username = await get_username(msg.from_id)
+    for instance in chats.get(msg.chat_id, []):
         text = msg.text
-    if len(msg.text) > 0:
-        from_name = await get_username(msg.from_id)
-        array += [f"{from_name}: {text}"]
-    print("DEBUG!!!!!!:", array)
+        if text.startswith(instance.prefix):
+            text = text[len(instance.prefix):].strip()
+        instance.history += [f"{username}: {text}"]
 
 
-@bot.on.message(text=[f"{prefix}r"])
-async def history_clear(_) -> str:
-    global array
-    array = []
-    return "История сообщений очищена."
+@bot.on.message(blocking=False)
+async def history_clear(msg: Message) -> str:
+    for instance in chats.get(msg.chat_id, []):
+        if msg.text.startswith(instance.prefix + "r"):
+            instance.history = []
+            await msg.reply(f"История сообщений очищена для {instance.prefix} ({instance.name})")
 
 
-def generate_match(s: Message):
-    s_low = s.text.lower()
-    return s_low.startswith(prefix) or name.lower() in s_low
+@bot.on.message(blocking=False)
+async def generate(msg: Message) -> str:
+    for instance in chats.get(msg.chat_id, []):
+        if instance.is_triggered(msg.text):
+            generation = instance.generate()
+            await msg.reply(f"{generation}")
 
 
-@bot.on.message(func=generate_match)
-async def generate(*_) -> str:
-    global array
-    history = "\n".join(array)
-    prompt = f"{start}\n{history}\n{name}: "
-    while len(prompt) > config["limits"]["max_context"] and len(array) > 0:
-        array.pop(0)
-        history = "\n".join(array)
-        prompt = f"{start}\n{history}\n{name}: "
-    output = generate_russian(prompt)
-    if output.endswith("\n"):
-        output = output[:-1]
-    array += [f"{name}: {output}"]
-    return output
+@bot.on.message(text=f"{global_prefix} list<_>")
+async def list_persons(*_):
+    reply = "Доступные боты:"
+    for id in persons.keys():
+        name = persons[id]["name"]
+        reply += f"\n{id} - {name}"
+    return reply
+
+
+@bot.on.message(text=f"{global_prefix} active<_>")
+async def list_active_persons(msg: Message, _):
+    reply = "Активные боты в этом чате:"
+    for instance in chats[msg.chat_id]:
+        reply += f"\n{instance.id} - {instance.name}"
+    return reply
+
+
+@bot.on.message(text=f"{global_prefix} toggle <id>")
+async def toggle_active_person(msg: Message, id: str):
+    if msg.chat_id not in chats:
+        chats[msg.chat_id] = []
+    chat = chats[msg.chat_id]
+    if id not in persons:
+        return "Нет такого бота"
+    try:
+        i = next(i for i, x in enumerate(chat) if x.id == id)
+        instance = chat.pop(i)
+        return f"{instance.id} ({instance.name}) выключен"
+    except StopIteration:
+        instance = GptInstance(id, persons[id])
+        chat += [instance]
+        return f"{instance.id} ({instance.name}) включен"
 
 
 bot.run_forever()
