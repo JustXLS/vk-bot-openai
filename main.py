@@ -15,7 +15,7 @@ async def get_username(id: int) -> str:
         return group.name
     else:
         user = (await bot.api.users.get(id))[0]
-        return user.first_name
+        return user.first_name + f" {user.last_name[0]}."
 
 
 @bot.on.message(blocking=False)
