@@ -37,7 +37,7 @@ async def save_history(msg: Message) -> str:
 async def history_clear(_) -> str:
     global array
     array = []
-    return "История сообщений очищена."
+    return "The message history has been cleared."
 
 
 def generate_match(s: Message):
