@@ -77,7 +77,7 @@ async def toggle_active_person(msg: Message, id: str):
     except StopIteration:
         instance = GptInstance(id, persons[id])
         chat += [instance]
-        return f"{instance.id} ({instance.name}) включен"
+        return f"{instance.id} ({instance.name}) активирован"
 
 
 @bot.on.message(text=f"{global_prefix} stop")
